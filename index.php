@@ -7,8 +7,18 @@ require_once('db.php');
 <html>
 <head>
 	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 	<title>Photobooth</title>
+
+<!-- Favicon + Android/iPhone Icons --> 
+	<link rel="apple-touch-icon" sizes="180x180" href="/resources/img/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/resources/img/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/resources/img/favicon-16x16.png">
+	<link rel="manifest" href="/resources/img/site.webmanifest">
+	<link rel="mask-icon" href="/resources/img/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+
 	<link rel="stylesheet" href="/resources/css/normalize.css" />
 	<link rel="stylesheet" href="/resources/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/resources/css/photoswipe.css">
@@ -68,9 +78,21 @@ require_once('db.php');
 					<?php
 					$imagelist = ($config['gallery']['newest_first'] === true) ? array_reverse($images) : $images;
 					foreach($imagelist as $image) {
-						echo '<a href="/images/'.$image.'" data-size="1920x1280">
-								<img src="/thumbs/'.$image.'" />
-								<figure>Caption</figure>
+						$date;
+						if ( isset($config['file_format']) && $config['file_format'] == 'date' && $config['show_date'] == true) {
+							$date = DateTime::createFromFormat('Ymd_His', substr($image, 0, strlen($image) - 4));
+					
+						}
+						
+						$filename_photo =  $config['folders']['images'] . DIRECTORY_SEPARATOR . $image;
+						$filename_thumb =  $config['folders']['thumbs'] . DIRECTORY_SEPARATOR . $image;
+
+						$imageinfo = getimagesize($filename_photo);
+						$imageinfoThumb = getimagesize($filename_thumb);
+
+						echo '<a href="'.DIRECTORY_SEPARATOR.$filename_photo.'" data-size="'.$imageinfo[0].'x'.$imageinfo[1].'" data-med="'.DIRECTORY_SEPARATOR.$filename_thumb.'" data-med-size="'.$imageinfoThumb[0].'x'.$imageinfoThumb[1].'">
+								<img src="'.DIRECTORY_SEPARATOR.$filename_thumb .'" />
+								<figure>' . ( $date == false ? '' : '<i class="fa fa-clock-o"></i> ' . $date->format($config['date_format'])) . '</figure>
 							</a>';
 					}
 					?>
